@@ -17,8 +17,8 @@ import * as Repack from '@callstack/repack';
  * @param env Environment options passed from either Webpack CLI or React Native CLI
  *            when running with `react-native start/bundle`.
  */
-export default env => {
-  let {
+export default (env) => {
+  const {
     mode = 'development',
     context = Repack.getDirname(import.meta.url),
     entry = './index.js',
@@ -28,8 +28,7 @@ export default env => {
     bundleFilename = undefined,
     sourceMapFilename = undefined,
     assetsPath = undefined,
-    reactNativePath = new URL('./node_modules/react-native', import.meta.url)
-      .pathname,
+    reactNativePath = new URL('./node_modules/react-native', import.meta.url).pathname,
   } = env;
   const dirname = Repack.getDirname(import.meta.url);
 
@@ -80,9 +79,10 @@ export default env => {
        * dependency. You might need it when using workspaces/monorepos or unconventional project
        * structure. For simple/typical project you won't need it.
        */
-      // alias: {
-      //   'react-native': reactNativePath,
-      // },
+      alias: {
+        'react-native': reactNativePath,
+        '@babel/runtime': path.join(dirname, 'node_modules/@babel/runtime'),
+      },
     },
     /**
      * Configures output.
@@ -96,7 +96,7 @@ export default env => {
       path: path.join(dirname, 'build/generated', platform),
       filename: 'index.bundle',
       chunkFilename: '[name].chunk.bundle',
-      publicPath: Repack.getPublicPath({platform, devServer}),
+      publicPath: Repack.getPublicPath({ platform, devServer }),
     },
     /**
      * Configures optimization of the built bundle.
@@ -136,30 +136,34 @@ export default env => {
         {
           test: /\.[jt]sx?$/,
           include: [
-            /node_modules(.*[/\\])+react-native/,
+            /node_modules(.*[/\\])+react/,
             /node_modules(.*[/\\])+@react-native/,
-          ],
-          use: 'babel-loader',
-        },
-        {
-          test: /\.[jt]sx?$/,
-          include: [
             /node_modules(.*[/\\])+@react-navigation/,
             /node_modules(.*[/\\])+@react-native-community/,
             /node_modules(.*[/\\])+@expo/,
             /node_modules(.*[/\\])+pretty-format/,
             /node_modules(.*[/\\])+metro/,
             /node_modules(.*[/\\])+abort-controller/,
+            /node_modules(.*[/\\])+@callstack\/repack/,
           ],
-          use: 'swc-loader',
+          use: 'babel-loader',
         },
         /**
          * Here you can adjust loader that will process your files.
+         *
+         * You can also enable persistent caching with `cacheDirectory` - please refer to:
+         * https://github.com/babel/babel-loader#options
          */
         {
           test: /\.[jt]sx?$/,
           exclude: /node_modules/,
-          use: 'swc-loader',
+          use: {
+            loader: 'babel-loader',
+            options: {
+              /** Add React Refresh transform only when HMR is enabled. */
+              plugins: devServer && devServer.hmr ? ['module:react-refresh/babel'] : undefined,
+            },
+          },
         },
         /**
          * This loader handles all static assets (images, video, audio and others), so that you can
@@ -172,7 +176,7 @@ export default env => {
          * ```
          */
         {
-          test: Repack.getAssetExtensionsRegExp(Repack.ASSET_EXTENSIONS),
+          test: Repack.getAssetExtensionsRegExp(Repack.ASSET_EXTENSIONS.filter((ext) => ext !== 'svg')),
           use: {
             loader: '@callstack/repack/assets-loader',
             options: {
@@ -186,6 +190,18 @@ export default env => {
               scalableAssetExtensions: Repack.SCALABLE_ASSETS,
             },
           },
+        },
+        {
+          test: /\.svg$/,
+          use: [
+            {
+              loader: '@svgr/webpack',
+              options: {
+                native: true,
+                dimensions: false,
+              },
+            },
+          ],
         },
       ],
     },
@@ -209,6 +225,17 @@ export default env => {
           sourceMapFilename,
           assetsPath,
         },
+        extraChunks: [
+          {
+            include: ['src_asyncChunks_Async_tsx'],
+            type: 'local',
+          },
+          {
+            exclude: ['src_asyncChunks_Async_tsx'],
+            type: 'remote',
+            outputPath: path.join('build/output', platform, 'remote'),
+          },
+        ],
       }),
     ],
   };

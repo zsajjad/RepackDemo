@@ -10,6 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@callstack/repack": "^3.0.1",
     "react": "18.1.0",
     "react-native": "0.70.6"
   },
@@ -18,6 +19,8 @@
     "@babel/runtime": "^7.12.5",
     "@callstack/repack": "^3.0.1",
     "@react-native-community/eslint-config": "^2.0.0",
+    "@svgr/webpack": "^6.5.1",
+    "@swc/core": "^1.3.24",
     "@tsconfig/react-native": "^2.0.2",
     "@types/jest": "^26.0.23",
     "@types/react": "^18.0.26",
