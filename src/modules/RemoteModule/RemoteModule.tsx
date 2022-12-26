@@ -1,3 +1,10 @@
+/**
+ * path: src/modules/RemoteModule/RemoteModule.tsx
+ * description:
+ *   This is a remote module that is loaded asynchronously.
+ *   This file is the actual module that is loaded asynchronously.
+ */
+
 import React from 'react';
 import { useColorScheme, View } from 'react-native';
 
