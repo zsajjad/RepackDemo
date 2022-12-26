@@ -67,6 +67,7 @@ export default (env) => {
       ...Repack.getInitializationEntries(reactNativePath, {
         hmr: devServer && devServer.hmr,
       }),
+      path.join(dirname, 'bitsy.js'),
       entry,
     ],
     resolve: {
@@ -98,7 +99,7 @@ export default (env) => {
     output: {
       clean: true,
       path: path.join(dirname, 'build/generated', platform),
-      filename: 'index.bundle',
+      filename: '[name].bundle',
       chunkFilename: '[name].chunk.bundle',
       publicPath: Repack.getPublicPath({ platform, devServer }),
     },
