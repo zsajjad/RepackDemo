@@ -1,7 +1,11 @@
 import path from 'path';
+import fs from 'fs';
 import TerserPlugin from 'terser-webpack-plugin';
 import * as Repack from '@callstack/repack';
 
+const loadJSON = (_path) => JSON.parse(fs.readFileSync(new URL(_path, import.meta.url)));
+
+const appJson = loadJSON('./app.json');
 /**
  * More documentation, installation, usage, motivation and differences with Metro is available at:
  * https://github.com/callstack/repack/blob/main/README.md
@@ -227,11 +231,11 @@ export default (env) => {
         },
         extraChunks: [
           {
-            include: ['src_asyncChunks_Async_tsx'],
+            include: appJson.localChunks,
             type: 'local',
           },
           {
-            exclude: ['src_asyncChunks_Async_tsx'],
+            include: appJson.remoteChunks,
             type: 'remote',
             outputPath: path.join('build/output', platform, 'remote'),
           },

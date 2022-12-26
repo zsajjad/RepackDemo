@@ -1,4 +1,8 @@
 {
   "name": "RepackDemo",
-  "displayName": "RepackDemo"
+  "displayName": "RepackDemo",
+  "localChunks": ["src_modules_LocalModule_LocalModule_tsx"],
+  "remoteChunks": ["src_modules_RemoteModule_RemoteModule_tsx"],
+  "remoteChunkPort": 4999,
+  "remoteChunkUrl": "http://10.0.2.2"
 }
